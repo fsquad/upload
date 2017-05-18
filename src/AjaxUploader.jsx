@@ -34,7 +34,6 @@ class AjaxUploader extends Component {
 
   onChange = e => {
     const files = e.target.files;
-    console.log('onChange', e);
     this.uploadFiles(files);
     this.reset();
   }
@@ -59,10 +58,35 @@ class AjaxUploader extends Component {
       return;
     }
 
-    console.log('onFileDrop', e);
+    const handleFile = (file) => this.uploadFiles([file]);
+    const handleEntries = (entries) => {
+      for (let j = 0; j < entries.length; j++) {
+        entries[j].file(handleFile);
+      }
+    };
 
-    const files = e.dataTransfer.files;
-    this.uploadFiles(files);
+    // Check for Chrome webkitdirectory
+    const tmpInput = document.createElement('input');
+    if ('webkitdirectory' in tmpInput
+        || 'mozdirectory' in tmpInput
+        || 'odirectory' in tmpInput
+        || 'msdirectory' in tmpInput
+        || 'directory' in tmpInput) {
+      const items = e.nativeEvent.dataTransfer.items;
+      const length = items.length;
+      for (let i = 0; i < length; i++) {
+        const entry = e.dataTransfer.items[i].webkitGetAsEntry();
+        if (entry.isFile) {
+          entry.file(handleFile);
+        } else if (entry.isDirectory) {
+          const dirReader = entry.createReader();
+          dirReader.readEntries(handleEntries);
+        }
+      }
+    } else {
+      const files = e.dataTransfer.files;
+      this.uploadFiles(files);
+    }
 
     e.preventDefault();
   }
@@ -70,6 +94,9 @@ class AjaxUploader extends Component {
   componentDidMount() {
     this._isMounted = true;
     this.refs.file.webkitdirectory = true;
+    this.refs.file.mozdirectory = true;
+    this.refs.file.odirectory = true;
+    this.refs.file.msdirectory = true;
     this.refs.file.directory = true;
   }
 
