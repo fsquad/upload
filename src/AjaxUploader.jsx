@@ -34,6 +34,7 @@ class AjaxUploader extends Component {
 
   onChange = e => {
     const files = e.target.files;
+    console.log('onChange', e);
     this.uploadFiles(files);
     this.reset();
   }
@@ -58,6 +59,8 @@ class AjaxUploader extends Component {
       return;
     }
 
+    console.log('onFileDrop', e);
+
     const files = e.dataTransfer.files;
     this.uploadFiles(files);
 
@@ -66,6 +69,8 @@ class AjaxUploader extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    this.refs.file.webkitdirectory = true;
+    this.refs.file.directory = true;
   }
 
   componentWillUnmount() {
