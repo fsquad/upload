@@ -60,8 +60,13 @@ class AjaxUploader extends Component {
 
     const handleFile = (file) => this.uploadFiles([file]);
     const handleEntries = (entries) => {
-      for (let j = 0; j < entries.length; j++) {
-        entries[j].file(handleFile);
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].isFile) {
+          entries[i].file(handleFile);
+        } else if (entries[i].isDirectory) {
+          const dirReader = entries[i].createReader();
+          dirReader.readEntries(handleEntries);
+        }
       }
     };
 
