@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import defaultRequest from './request';
 import getUid from './uid';
+import attrAccept from './attr-accept';
 
 class AjaxUploader extends Component {
   static propTypes = {
@@ -39,7 +40,7 @@ class AjaxUploader extends Component {
   }
 
   onClick = () => {
-    const el = this.refs.file;
+    const el = this.fileInput;
     if (!el) {
       return;
     }
@@ -57,14 +58,13 @@ class AjaxUploader extends Component {
       e.preventDefault();
       return;
     }
-
     const handleFile = (file) => this.uploadFiles([file]);
     const handleEntries = (entries) => {
-      for (let i = 0; i < entries.length; i++) {
-        if (entries[i].isFile) {
-          entries[i].file(handleFile);
-        } else if (entries[i].isDirectory) {
-          const dirReader = entries[i].createReader();
+      entries.forEach((file) => {
+        if (file.isFile) {
+          file.file(handleFile);
+        } else if (file.isDirectory) {
+          const dirReader = file.createReader();
           dirReader.readEntries(handleEntries);
         }
       }
@@ -112,12 +112,10 @@ class AjaxUploader extends Component {
 
   uploadFiles(files) {
     const postFiles = Array.prototype.slice.call(files);
-    const len = postFiles.length;
-    for (let i = 0; i < len; i++) {
-      const file = postFiles[i];
+    postFiles.forEach((file) => {
       file.uid = getUid();
       this.upload(file, postFiles);
-    }
+    });
   }
 
   upload(file, fileList) {
@@ -166,9 +164,9 @@ class AjaxUploader extends Component {
       onProgress: onProgress ? e => {
         onProgress(e, file);
       } : null,
-      onSuccess: ret => {
+      onSuccess: (ret, xhr) => {
         delete this.reqs[uid];
-        props.onSuccess(ret, file);
+        props.onSuccess(ret, file, xhr);
       },
       onError: (err, ret) => {
         delete this.reqs[uid];
@@ -206,6 +204,10 @@ class AjaxUploader extends Component {
     }
   }
 
+  saveFileInput = (node) => {
+    this.fileInput = node;
+  }
+
   render() {
     const {
       component: Tag, prefixCls, className, disabled,
@@ -232,7 +234,7 @@ class AjaxUploader extends Component {
       >
         <input
           type="file"
-          ref="file"
+          ref={this.saveFileInput}
           key={this.state.uid}
           style={{ display: 'none' }}
           accept={accept}

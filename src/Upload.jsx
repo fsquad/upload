@@ -65,23 +65,27 @@ class Upload extends Component {
   }
 
   getComponent() {
-    return typeof FormData !== 'undefined' ? AjaxUpload : IframeUpload;
+    return typeof File !== 'undefined' ? AjaxUpload : IframeUpload;
   }
 
   abort(file) {
-    this.refs.inner.abort(file);
+    this.uploader.abort(file);
+  }
+
+  saveUploader = (node) => {
+    this.uploader = node;
   }
 
   render() {
     if (this.props.supportServerRender) {
       const ComponentUploader = this.state.Component;
       if (ComponentUploader) {
-        return <ComponentUploader {...this.props} ref="inner"/>;
+        return <ComponentUploader {...this.props} ref={this.saveUploader} />;
       }
       return null;
     }
     const ComponentUploader = this.getComponent();
-    return <ComponentUploader {...this.props} ref="inner"/>;
+    return <ComponentUploader {...this.props} ref={this.saveUploader} />;
   }
 }
 

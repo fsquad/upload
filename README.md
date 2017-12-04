@@ -26,7 +26,7 @@ npm start
 
 ## Example
 
-http://localhost:8000/examples/
+http://localhost:8020/examples/
 
 online example: http://react-component.github.io/upload/examples/simple.html
 
@@ -83,6 +83,8 @@ React.render(<Upload />, container);
 
 1. `result`: response body
 2. `file`: upload file
+3. `xhr`: xhr header, only for modern browsers which support AJAX upload. since
+   2.4.0
 
 
 ### customRequest
@@ -112,6 +114,8 @@ abort(file?: File) => void: abort the uploading file
 #### Download Popup Problem
 
 In iframe uploader way, the content-type of response should be `text/plain` or `text/html`.[referense](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup#content-type-negotiation)
+
+What's more, in iframe mode, the response's status should always be `200 OK`, otherwise you might get an `Access is denied` error in IE 8/9.
 
 #### Domain Problem
 
